@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   name: n8n
   namespace: default
-labels:
-  app: n8n
+  labels:
+    app: n8n
 spec:
   replicas: 1
   selector:
@@ -32,11 +32,11 @@ spec:
             - name: DB_TYPE
               value: "sqlite"
             - name: DB_SQLITE_POOL_SIZE
-              value: "2"   # Fix deprecation
+              value: "2"
             - name: N8N_BLOCK_ENV_ACCESS_IN_NODE
-              value: "false"  # Allow env vars in Code node
+              value: "false"
             - name: N8N_PORT
-              value: "5678"   # Fix incorrect tcp:// style
+              value: "5678"
           volumeMounts:
             - name: n8n-data
               mountPath: /home/node/.n8n
@@ -50,8 +50,8 @@ kind: Service
 metadata:
   name: n8n
   namespace: default
-labels:
-  app: n8n
+  labels:
+    app: n8n
 spec:
   type: NodePort
   selector:
@@ -59,7 +59,7 @@ spec:
   ports:
     - port: 5678
       targetPort: 5678
-      nodePort: 30119   # Exposed on localhost:30119
+      nodePort: 30119
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
