@@ -1,29 +1,27 @@
-name: Deploy Workflow to n8n (Docker Desktop K8s)
+name: Deploy n8n to local K8s
 
 on:
+  workflow_dispatch:   # manual trigger
   push:
     branches:
       - main
-    paths:
-      - yaml.json
 
 jobs:
   deploy:
-    # Run this job on your self-hosted runner (your PC)
-    runs-on: self-hosted
-
+    runs-on: self-hosted   # 👈 make sure this matches your local runner
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Verify kubectl context
+      - name: Debug kubectl
         run: |
           kubectl config current-context
-          kubectl get pods -A
+          kubectl get nodes
+          kubectl get pods -n default
 
       - name: Import workflow into n8n
         run: |
-          N8N_POD=$(kubectl get pod -l app=n8n -o jsonpath="{.items[0].metadata.name}")
-          kubectl exec -i $N8N_POD -- n8n import:workflow \
+          N8N_POD=$(kubectl get pod -n default -l app=n8n -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec -i -n default $N8N_POD -- n8n import:workflow \
             --input=https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json \
             --overwrite
