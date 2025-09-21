@@ -1,0 +1,56 @@
+{
+  "name": "AI Agent - Read K8s YAML from GitHub",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path-to-yaml>",
+        "responseFormat": "string"
+      },
+      "id": "2",
+      "name": "Get YAML from GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const yaml = require('js-yaml');\n\ntry {\n  const doc = yaml.load(items[0].json.body);\n  return [{ json: { parsed: doc } }];\n} catch (e) {\n  throw new Error('Invalid YAML: ' + e.message);\n}"
+      },
+      "id": "3",
+      "name": "Parse YAML",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "prompt": "You are a Kubernetes expert. Explain the following manifest in human-readable form:\n\n{{$json[\"parsed\"]}}"
+      },
+      "id": "4",
+      "name": "AI Agent (OpenAI)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Get YAML from GitHub", "type": "main", "index": 0 }]]
+    },
+    "Get YAML from GitHub": {
+      "main": [[{ "node": "Parse YAML", "type": "main", "index": 0 }]]
+    },
+    "Parse YAML": {
+      "main": [[{ "node": "AI Agent (OpenAI)", "type": "main", "index": 0 }]]
+    }
+  }
+}
