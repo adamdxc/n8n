@@ -31,7 +31,7 @@ jobs:
           Write-Output "Target pod: $N8N_POD"
 
           # 3. Copy workflow into pod
-          kubectl cp yaml.json default/$N8N_POD:/tmp/yaml.json
+          kubectl cp yaml.json default/${N8N_POD}:/tmp/yaml.json
 
           # 4. Import workflow inside pod
-          kubectl exec -i -n default $N8N_POD -- n8n import:workflow --input=/tmp/yaml.json --overwrite
+          kubectl exec -i -n default ${N8N_POD} -- n8n import:workflow --input=/tmp/yaml.json --overwrite
