@@ -6,7 +6,7 @@ Easily launch [n8n](https://n8n.io) using Docker.
 
 ## ▶️ One-Click Run in Docker Desktop
 
-[![Run in Docker Desktop](https://desktop.docker.com/images/run-button.svg)](https://open.docker.com/dashboard/run?image=docker.n8n.io/n8nio/n8n&name=n8n&ports=5678:5678&env=GENERIC_TIMEZONE=Asia%2FKuala%20Lumpur&env=TZ=Asia%2FKuala%20Lumpur&env=N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true&env=N8N_RUNNERS_ENABLED=true&volume=n8n_data:/home/node/.n8n)
+[![Run in Docker Desktop](https://img.shields.io/badge/Run%20in-Docker%20Desktop-blue.svg?logo=docker)](https://open.docker.com/dashboard/run?image=docker.n8n.io/n8nio/n8n&name=n8n&ports=5678:5678&env=GENERIC_TIMEZONE=Asia%2FKuala%20Lumpur&env=TZ=Asia%2FKuala%20Lumpur&env=N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true&env=N8N_RUNNERS_ENABLED=true&volume=n8n_data:/home/node/.n8n)
 
 ---
 
