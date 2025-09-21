@@ -14,11 +14,11 @@
         "owner": "adamdxc",
         "repository": "n8n",
         "branch": "main",
-        "operation": "getRepositoryContent",
+        "operation": "list",
         "path": ""
       },
       "id": "2",
-      "name": "List YAML Files",
+      "name": "List Repo Files",
       "type": "n8n-nodes-base.github",
       "typeVersion": 1,
       "position": [500, 300],
@@ -52,42 +52,27 @@
     },
     {
       "parameters": {
-        "options": {},
-        "action": "parse",
-        "sourceKey": "body"
+        "model": "gpt-4o-mini",
+        "prompt": "You are a Kubernetes expert. Explain the following manifest (from file {{$json[\"name\"]}}) in human-readable form:\n\n{{$json[\"body\"]}}"
       },
       "id": "5",
-      "name": "Parse YAML",
-      "type": "n8n-nodes-base.yaml",
-      "typeVersion": 1,
-      "position": [1250, 300]
-    },
-    {
-      "parameters": {
-        "model": "gpt-4o-mini",
-        "prompt": "You are a Kubernetes expert. Explain the following manifest (from file {{$json[\"name\"]}}) in human-readable form:\n\n{{$json}}"
-      },
-      "id": "6",
       "name": "AI Agent (OpenAI)",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
-      "position": [1500, 300]
+      "position": [1250, 300]
     }
   ],
   "connections": {
     "Manual Trigger": {
-      "main": [[{ "node": "List YAML Files", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "List Repo Files", "type": "main", "index": 0 }]]
     },
-    "List YAML Files": {
+    "List Repo Files": {
       "main": [[{ "node": "Filter YAML Files", "type": "main", "index": 0 }]]
     },
     "Filter YAML Files": {
       "main": [[{ "node": "Get YAML Content", "type": "main", "index": 0 }]]
     },
     "Get YAML Content": {
-      "main": [[{ "node": "Parse YAML", "type": "main", "index": 0 }]]
-    },
-    "Parse YAML": {
       "main": [[{ "node": "AI Agent (OpenAI)", "type": "main", "index": 0 }]]
     }
   }
