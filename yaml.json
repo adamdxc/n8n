@@ -1,5 +1,5 @@
 {
-  "name": "AI Agent - Read K8s YAML from GitHub",
+  "name": "AI Agent - Read All K8s YAML from GitHub",
   "nodes": [
     {
       "parameters": {},
@@ -11,42 +11,80 @@
     },
     {
       "parameters": {
-        "url": "https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path-to-yaml>",
-        "responseFormat": "string"
+        "owner": "<owner>",
+        "repository": "<repo>",
+        "branch": "<branch>",
+        "operation": "getRepositoryContent",
+        "path": "<folder-path>"
       },
       "id": "2",
-      "name": "Get YAML from GitHub",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [500, 300]
+      "name": "List YAML Files",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "credentials": {
+        "githubApi": {
+          "id": "<your_credential_id>",
+          "name": "GitHub API"
+        }
+      }
     },
     {
       "parameters": {
-        "functionCode": "const yaml = require('js-yaml');\n\ntry {\n  const doc = yaml.load(items[0].json.body);\n  return [{ json: { parsed: doc } }];\n} catch (e) {\n  throw new Error('Invalid YAML: ' + e.message);\n}"
+        "functionCode": "return items.filter(item => item.json.name.endsWith('.yaml') || item.json.name.endsWith('.yml'));"
       },
       "id": "3",
-      "name": "Parse YAML",
+      "name": "Filter YAML Files",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [750, 300]
     },
     {
       "parameters": {
-        "model": "gpt-4o-mini",
-        "prompt": "You are a Kubernetes expert. Explain the following manifest in human-readable form:\n\n{{$json[\"parsed\"]}}"
+        "url": "={{$json.download_url}}",
+        "responseFormat": "string"
       },
       "id": "4",
+      "name": "Get YAML Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "action": "parse",
+        "sourceKey": "body"
+      },
+      "id": "5",
+      "name": "Parse YAML",
+      "type": "n8n-nodes-base.yaml",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "prompt": "You are a Kubernetes expert. Explain the following manifest (from file {{$json[\"name\"]}}) in human-readable form:\n\n{{$json}}"
+      },
+      "id": "6",
       "name": "AI Agent (OpenAI)",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
-      "position": [1000, 300]
+      "position": [1500, 300]
     }
   ],
   "connections": {
     "Manual Trigger": {
-      "main": [[{ "node": "Get YAML from GitHub", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "List YAML Files", "type": "main", "index": 0 }]]
     },
-    "Get YAML from GitHub": {
+    "List YAML Files": {
+      "main": [[{ "node": "Filter YAML Files", "type": "main", "index": 0 }]]
+    },
+    "Filter YAML Files": {
+      "main": [[{ "node": "Get YAML Content", "type": "main", "index": 0 }]]
+    },
+    "Get YAML Content": {
       "main": [[{ "node": "Parse YAML", "type": "main", "index": 0 }]]
     },
     "Parse YAML": {
