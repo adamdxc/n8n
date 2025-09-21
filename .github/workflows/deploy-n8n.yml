@@ -1,0 +1,37 @@
+name: Deploy Workflow to n8n (K8s - Docker Desktop)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - yaml.json
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure Kubeconfig for Docker Desktop
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_DATA_DOCKER }}" | base64 -d > ~/.kube/config
+          kubectl config use-context docker-desktop
+
+      - name: Verify context
+        run: kubectl config current-context
+
+      - name: Import workflow into n8n
+        run: |
+          N8N_POD=$(kubectl get pod -l app=n8n -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec -i $N8N_POD -- n8n import:workflow \
+            --input=https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json \
+            --overwrite
