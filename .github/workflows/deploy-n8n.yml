@@ -1,4 +1,4 @@
-name: Deploy Workflow to n8n (K8s - Docker Desktop)
+name: Deploy Workflow to n8n (Docker Desktop K8s)
 
 on:
   push:
@@ -9,25 +9,17 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Run this job on your self-hosted runner (your PC)
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Configure Kubeconfig for Docker Desktop
+      - name: Verify kubectl context
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_DATA_DOCKER }}" | base64 -d > ~/.kube/config
-          kubectl config use-context docker-desktop
-
-      - name: Verify context
-        run: kubectl config current-context
+          kubectl config current-context
+          kubectl get pods -A
 
       - name: Import workflow into n8n
         run: |
