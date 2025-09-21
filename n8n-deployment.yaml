@@ -1,18 +1,10 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: n8n-data
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: n8n
+  namespace: default
+labels:
+  app: n8n
 spec:
   replicas: 1
   selector:
@@ -25,35 +17,58 @@ spec:
     spec:
       containers:
         - name: n8n
-          image: docker.n8n.io/n8nio/n8n:latest
+          image: docker.n8n.io/n8nio/n8n
           ports:
             - containerPort: 5678
           env:
             - name: GENERIC_TIMEZONE
-              value: "Asia/Kuala Lumpur"
+              value: "Asia/Kuala_Lumpur"
             - name: TZ
-              value: "Asia/Kuala Lumpur"
+              value: "Asia/Kuala_Lumpur"
             - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
               value: "true"
             - name: N8N_RUNNERS_ENABLED
               value: "true"
+            - name: DB_TYPE
+              value: "sqlite"
+            - name: DB_SQLITE_POOL_SIZE
+              value: "2"   # Fix deprecation
+            - name: N8N_BLOCK_ENV_ACCESS_IN_NODE
+              value: "false"  # Allow env vars in Code node
+            - name: N8N_PORT
+              value: "5678"   # Fix incorrect tcp:// style
           volumeMounts:
-            - name: n8n-storage
+            - name: n8n-data
               mountPath: /home/node/.n8n
       volumes:
-        - name: n8n-storage
+        - name: n8n-data
           persistentVolumeClaim:
-            claimName: n8n-data
+            claimName: n8n-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: n8n
+  namespace: default
+labels:
+  app: n8n
 spec:
+  type: NodePort
   selector:
     app: n8n
   ports:
-    - protocol: TCP
-      port: 5678
+    - port: 5678
       targetPort: 5678
-  type: NodePort
+      nodePort: 30119   # Exposed on localhost:30119
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
