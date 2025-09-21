@@ -10,6 +10,16 @@ Easily launch [n8n](https://n8n.io) using Docker.
 
 ---
 
+## ⚡ Quick Start
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop) if you haven’t already.  
+2. Click the **Run in Docker Desktop** button above.  
+3. Wait for Docker to pull the image and start the container.  
+4. Open n8n in your browser:  
+   👉 [http://localhost:5678](http://localhost:5678)  
+
+---
+
 ## 🐳 Run via CLI
 
 If you prefer the terminal, run:
