@@ -1,4 +1,4 @@
-name: Deploy n8n to local K8s
+name: Deploy n8n workflow to local K8s
 
 on:
   workflow_dispatch:   # manual trigger
@@ -8,18 +8,30 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted   # 👈 make sure this matches your local runner
+    runs-on: self-hosted   # 👈 ensure your runner is running locally
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Debug kubectl
+      - name: Debug cluster
+        shell: pwsh
         run: |
           kubectl config current-context
           kubectl get nodes
           kubectl get pods -n default
 
       - name: Import workflow into n8n
+        shell: pwsh
         run: |
+          # 1. Download yaml.json to runner
+          Invoke-WebRequest https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json -OutFile yaml.json
+
+          # 2. Get n8n pod name
           $N8N_POD = kubectl get pod -n default -l app=n8n -o jsonpath="{.items[0].metadata.name}"
-          kubectl exec -i -n default $N8N_POD -- sh -c "curl -sL https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json -o /tmp/yaml.json && n8n import:workflow --input=/tmp/yaml.json --overwrite"
+          Write-Output "Target pod: $N8N_POD"
+
+          # 3. Copy workflow into pod
+          kubectl cp yaml.json default/$N8N_POD:/tmp/yaml.json
+
+          # 4. Import workflow inside pod
+          kubectl exec -i -n default $N8N_POD -- n8n import:workflow --input=/tmp/yaml.json --overwrite
