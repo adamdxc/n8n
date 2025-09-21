@@ -11,11 +11,11 @@
     },
     {
       "parameters": {
-        "owner": "<owner>",
-        "repository": "<repo>",
-        "branch": "<branch>",
+        "owner": "adamdxc",
+        "repository": "n8n",
+        "branch": "main",
         "operation": "getRepositoryContent",
-        "path": "<folder-path>"
+        "path": ""
       },
       "id": "2",
       "name": "List YAML Files",
