@@ -20,9 +20,8 @@ jobs:
           kubectl get pods -n default
 
       - name: Import workflow into n8n
-        shell: bash
         run: |
-          N8N_POD=$(kubectl get pod -n default -l app=n8n -o jsonpath="{.items[0].metadata.name}")
-          kubectl exec -i -n default $N8N_POD -- n8n import:workflow \
-            --input=https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json \
+          $N8N_POD = kubectl get pod -n default -l app=n8n -o jsonpath="{.items[0].metadata.name}"
+          kubectl exec -i -n default $N8N_POD -- n8n import:workflow `
+            --input https://raw.githubusercontent.com/adamdxc/n8n/refs/heads/main/yaml.json `
             --overwrite
