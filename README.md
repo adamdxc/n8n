@@ -1,13 +1,14 @@
-# 🧩 n8n Docker Setup
 
-Easily run [n8n](https://n8n.io) inside Docker.
+# 🧩 n8n Deployment Guide
+
+Easily run [n8n](https://n8n.io) using Docker or Azure Container Instances (ACI).
 
 ---
 
 ## 🚀 Quick Start
 
-- For **Linux / macOS**, follow the steps below.  
-- For **Windows users**, see 👉 [Docker Run for Windows](./docker_run_for_windows.md)
+- **Linux / macOS:** Follow the steps below.
+- **Windows users:** See 👉 [Docker Run for Windows](./docker_run_for_windows.md)
 
 ---
 
@@ -29,3 +30,41 @@ docker run -it --rm \
   -e N8N_RUNNERS_ENABLED=true \
   -v n8n_data:/home/node/.n8n \
   docker.n8n.io/n8nio/n8n
+```
+
+---
+
+## ☁️ Run on Azure Container Instances (ACI)
+
+Deploy n8n on Azure Container Instances for cloud-native automation:
+
+```bash
+az container create \
+  --resource-group rgACI \
+  --name n8n \
+  --image docker.n8n.io/n8nio/n8n \
+  --cpu 1 \
+  --memory 2 \
+  --ports 5678 \
+  --environment-variables GENERIC_TIMEZONE="Asia/Kuala Lumpur" TZ="Asia/Kuala Lumpur" N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true N8N_RUNNERS_ENABLED=true \
+  --azure-file-volume-account-name n8npvc \
+  --azure-file-volume-account-key <YOUR_AZURE_STORAGE_KEY> \
+  --azure-file-volume-share-name n8ndata \
+  --azure-file-volume-mount-path /home/node/.n8n \
+  --ip-address Public \
+  --os-type Linux
+```
+
+> **Note:**
+> - Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) and log in with `az login`.
+> - Replace `<YOUR_AZURE_STORAGE_KEY>` with your actual Azure Storage Account Key.
+> - The above command mounts Azure File storage for persistent n8n data.
+> - Adjust CPU, memory, and other parameters as needed.
+
+---
+
+## 📚 Resources
+
+- [n8n Documentation](https://docs.n8n.io/)
+- [Azure Container Instances](https://learn.microsoft.com/en-us/azure/container-instances/)
+For more details, see the [n8n documentation](https://docs.n8n.io/) and [Azure Container Instances docs](https://learn.microsoft.com/en-us/azure/container-instances/).
